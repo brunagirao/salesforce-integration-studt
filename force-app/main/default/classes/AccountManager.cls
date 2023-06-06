@@ -13,7 +13,7 @@ Date                Modified By             Description
 global with sharing class AccountManager {
     
     @HttpGet
-    global static AccountInfoResponse accountInformation() {
+    global static AccountInfoResponse getAccountInfo() {
         RestRequest request         = RestContext.request;
         String accountId            = request.requestURI.substringAfterLast('/');
         AccountInfoWrapper wrapper  = new AccountInfoWrapper(); 
@@ -70,7 +70,7 @@ global with sharing class AccountManager {
     }
 
     @HttpDelete
-    global static AccountInfoResponse deleteAccount(){
+    global static AccountInfoResponse deleteAccountInfo(){
         RestRequest request = RestContext.request;
         String accountId    = request.requestURI.substringAfterLast('/');
 
