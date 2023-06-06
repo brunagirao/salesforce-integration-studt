@@ -80,10 +80,40 @@ global with sharing class AccountManager {
             ];
 
             delete accountRecord;
-            
+
             return new AccountInfoResponse(
                 false, 'Account record deleted successfully!', new AccountInfoWrapper()
             );
+
+        } catch (Exception e) {
+            return new AccountInfoResponse(e);
+        }
+    }
+
+    @HttpPatch
+    global static AccountInfoResponse updateAccountInfo(AccountInfoWrapper accountInfo) {
+        RestRequest request = RestContext.request;
+        String accountId    = request.requestURI.substringAfterLast('/');
+
+        try {
+            Account accountToUpdate;
+
+            Account accountRecord = [
+                SELECT Id FROM Account WHERE Id =: accountId LIMIT 1
+            ];
+
+            if(accountRecord != null) {
+                accountToUpdate = new Account (
+                    Id              = accountRecord.Id,
+                    Rating          = accountInfo.AccountRecord.Rating,
+                    AccountNumber   = accountInfo.AccountRecord.AccountNumber,
+                    Description     = accountInfo.AccountRecord.Description
+                );
+            }
+
+            update accountToUpdate;
+
+            return new AccountInfoResponse(false, 'Account record update successfully', new AccountInfoWrapper(accountToUpdate, null, null));
 
         } catch (Exception e) {
             return new AccountInfoResponse(e);
