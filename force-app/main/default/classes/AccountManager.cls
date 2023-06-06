@@ -69,7 +69,26 @@ global with sharing class AccountManager {
         }
     }
 
-    
+    @HttpDelete
+    global static AccountInfoResponse deleteAccount(){
+        RestRequest request = RestContext.request;
+        String accountId    = request.requestURI.substringAfterLast('/');
+
+        try {
+            Account accountRecord = [
+                SELECT Id FROM Account WHERE Id =: accountId LIMIT 1
+            ];
+
+            delete accountRecord;
+            
+            return new AccountInfoResponse(
+                false, 'Account record deleted successfully!', new AccountInfoWrapper()
+            );
+
+        } catch (Exception e) {
+            return new AccountInfoResponse(e);
+        }
+    }
 
 
     global class AccountInfoResponse {
