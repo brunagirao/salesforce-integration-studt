@@ -19,7 +19,7 @@ global with sharing class AccountManager {
         AccountInfoWrapper wrapper  = new AccountInfoWrapper(); 
 
         try {
-            wrapper.accountRecord = [
+            wrapper.AccountRecord = [
             SELECT Id, Name, Rating, Industry, 
                    Description, Phone, Fax
               FROM Account 
@@ -27,15 +27,15 @@ global with sharing class AccountManager {
              LIMIT 1
             ];
 
-            if(wrapper.accountRecord != null) {
-                wrapper.contactList = [
+            if(wrapper.AccountRecord != null) {
+                wrapper.Contacts = [
                     SELECT Id, Name, FirstName, 
                            LastName, Email, Phone
                       FROM Contact
                      WHERE AccountId =: accountId
                 ];
 
-                wrapper.caseList = [
+                wrapper.Cases = [
                     SELECT Id, CaseNumber, Subject,
                            Description, Status, Owner.Name
                       FROM Case
@@ -51,6 +51,25 @@ global with sharing class AccountManager {
             return new AccountInfoResponse(e);
         }
     }
+
+
+    @HttpPost
+    global static AccountInfoResponse postAccountInfo(AccountInfoWrapper accountInfo){
+        
+        try {
+            Account acc = accountInfo.AccountRecord;
+            insert acc;
+
+            return new AccountInfoResponse(
+                false, 'Account Create successfully', new AccountInfoWrapper(acc, new List<Contact>(), new List<Case>())
+            );
+
+        } catch (Exception e) {
+            return new AccountInfoResponse(e);
+        }
+    }
+
+    
 
 
     global class AccountInfoResponse {
@@ -76,10 +95,19 @@ global with sharing class AccountManager {
     }
 
     global class AccountInfoWrapper {
-        global Account accountRecord       {get; set;}
+        global Account AccountRecord        {get; set;}
         
-        global List<Case> caseList         {get; set;}
-        global List<Contact> contactList   {get; set;}
+        global List<Contact> Contacts       {get; set;}
+        global List<Case> Cases             {get; set;}
+        
+
+        global AccountInfoWrapper() {}
+
+        global AccountInfoWrapper(Account accountRecord, List<Contact> contacts, List<Case> cases) {
+            this.AccountRecord      = accountRecord;
+            this.Cases              = cases;
+            this.Contacts           = contacts;
+        }
     }
 
     global class AccountManagerException extends Exception{}
