@@ -57,11 +57,35 @@ global with sharing class AccountManager {
     global static AccountInfoResponse postAccountInfo(AccountInfoWrapper accountInfo){
         
         try {
-            Account acc = accountInfo.AccountRecord;
-            insert acc;
+            Account accountRecord = accountInfo.AccountRecord;
+            insert accountRecord;
+            
+            List<Contact> contacts;
+            List<Case> cases;
 
+            if(accountRecord != null) {
+                contacts = accountInfo.Contacts;
+                for(Contact ctt : contacts) {
+                    ctt.AccountId = accountRecord.Id;
+                }
+
+                cases = accountInfo.Cases;
+                for(Case cs : cases) {
+                    cs.AccountId = accountRecord.Id;
+                }
+            }
+            
+
+            if(contacts != null && contacts.size() > 0) {
+                insert contacts;
+            } 
+
+            if(cases != null && cases.size() > 0) {
+                insert cases;
+            }
+            
             return new AccountInfoResponse(
-                false, 'Account Create successfully', new AccountInfoWrapper(acc, new List<Contact>(), new List<Case>())
+                false, 'Account Create successfully', new AccountInfoWrapper(accountRecord, contacts, cases)
             );
 
         } catch (Exception e) {
@@ -76,8 +100,15 @@ global with sharing class AccountManager {
 
         try {
             Account accountRecord = [
-                SELECT Id FROM Account WHERE Id =: accountId LIMIT 1
+                SELECT Id,
+                       (SELECT Id FROM Cases)
+                  FROM Account 
+                 WHERE Id =: accountId LIMIT 1
             ];
+
+            if(!accountRecord.Cases.isEmpty()) {
+                delete accountRecord.Cases;
+            }
 
             delete accountRecord;
 
@@ -145,7 +176,6 @@ global with sharing class AccountManager {
 
     global class AccountInfoWrapper {
         global Account AccountRecord        {get; set;}
-        
         global List<Contact> Contacts       {get; set;}
         global List<Case> Cases             {get; set;}
         
