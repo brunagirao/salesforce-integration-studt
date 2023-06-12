@@ -17,15 +17,42 @@ global with sharing class AccountPlanner {
     }
 
 
+    webservice static AccountInfoWrapper createAccount(AccountInfoWrapper accountInfoWrapper) {
+
+        Account acc = new Account (
+            Name            = accountInfoWrapper.Name,
+            Rating          = accountInfoWrapper.Rating,
+            Industry        = accountInfoWrapper.Industry,
+            Phone           = accountInfoWrapper.Phone,
+            AccountNumber   = accountInfoWrapper.AccountNumber
+        );
+
+        insert acc;
+        return accountInfoWrapper;
+    }
+    
+
+    global class AccountInfoWrapper {
+        webservice String Name;
+        webservice String Rating;
+        webservice String Industry;
+        webservice String Phone;
+        webservice String AccountNumber;
+
+        global AccountInfoWrapper() {}
+
+    }
+
+
 
     /** XML To use
      * PATH (Workbench / Postman): <instanceorg>/services/Soap/class/AccountPlanner
      * HEADER
-        Content-Type: texy/xml; charset=UTF-8
+        Content-Type: text/xml; charset=UTF-8
         Accept: text/xml
         SOAPAction: '';
     
-     *  BODY
+     *  BODY | fullName method
         <?xml version="1.0" encoding="UTF-8"?>
         <soapenv:Envelope 
             xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
@@ -34,7 +61,7 @@ global with sharing class AccountPlanner {
             <soapenv:Header>
                 <accp:SessionHeader>
                     <accp:sessionId>
-                        
+                         get your Salesforce section Id
                     </accp:sessionId>
                 </accp:SessionHeader>
             </soapenv:Header>
@@ -47,6 +74,32 @@ global with sharing class AccountPlanner {
             </soapenv:Body>
         </soapenv:Envelope>
      * 
+     *  BODY | createAccount method
+     * <?xml version="1.0" encoding="UTF-8"?>
+        <soapenv:Envelope 
+            xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+            xmlns:accp="http://soap.sforce.com/schemas/class/AccountPlanner">
+            
+            <soapenv:Header>
+                <accp:SessionHeader>
+                    <accp:sessionId> 
+                        get your Salesforce section Id
+                    </accp:sessionId>
+                </accp:SessionHeader>
+            </soapenv:Header>
+            
+            <soapenv:Body>
+                <accp:createAccount>
+                        <accp:accountInfoWrapper>
+                            <accp:Name>Bruna</accp:Name>
+                            <accp:Rating>Test</accp:Rating>
+                            <accp:Phone>99999999999</accp:Phone>
+                            <accp:Industry>Education</accp:Industry>
+                            <accp:AccountNumber>123456</accp:AccountNumber>
+                        </accp:accountInfoWrapper>
+                </accp:createAccount>
+            </soapenv:Body>
+        </soapenv:Envelope>
      */
 
 }
